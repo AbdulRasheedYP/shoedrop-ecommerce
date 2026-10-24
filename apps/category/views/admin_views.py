@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from django.db.models import Q
 from itertools import chain
 
@@ -132,6 +133,7 @@ def edit_category(request, category_id):
 
 
 @staff_member_required(login_url='admin_login')
+@require_POST
 def delete_category(request, category_id):
     category = get_object_or_404(Category, id=category_id)
 
@@ -234,6 +236,7 @@ def edit_subcategory(request, subcategory_id):
 
 
 @staff_member_required(login_url='admin_login')
+@require_POST
 def delete_subcategory(request, subcategory_id):
     subcategory = get_object_or_404(SubCategory, id=subcategory_id)
 

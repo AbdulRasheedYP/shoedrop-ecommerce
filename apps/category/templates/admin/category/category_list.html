@@ -267,10 +267,13 @@
                     style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);">
                     Cancel
                 </button>
-                <a id="modalConfirmBtn" href="#"
-                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors text-center cursor-pointer">
-                    Confirm
-                </a>
+                <form id="deleteCategoryForm" method="POST" action="" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors text-center cursor-pointer">
+                        Confirm
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -278,7 +281,7 @@
     <script>
         function openDeleteModal(url, name) {
             document.getElementById('modalItemName').textContent = name;
-            document.getElementById('modalConfirmBtn').href = url;
+            document.getElementById('deleteCategoryForm').action = url;
             document.getElementById('deleteModal').classList.add('active');
         }
         function closeDeleteModal() {

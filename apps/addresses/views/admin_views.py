@@ -1,4 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.accounts.models import User
 from django.core.paginator import Paginator
@@ -60,6 +61,7 @@ def customer_details(request, id):
 
 
 @staff_member_required(login_url='admin_login')
+@require_POST
 def block_user(request, id):
 
     user = get_object_or_404(User, id=id, is_superuser=False)
@@ -70,6 +72,7 @@ def block_user(request, id):
 
 
 @staff_member_required(login_url='admin_login')
+@require_POST
 def unblock_user(request, id):
 
     user = get_object_or_404(User, id=id, is_superuser=False)
@@ -80,6 +83,7 @@ def unblock_user(request, id):
 
 
 @staff_member_required(login_url='admin_login')
+@require_POST
 def delete_user(request, id):
     user = get_object_or_404(User, id=id, is_superuser=False)
     username = user.username

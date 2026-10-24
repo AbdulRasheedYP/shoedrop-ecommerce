@@ -141,20 +141,26 @@
                             <td class="py-4 px-6 text-right">
                                 <div class="flex items-center justify-end gap-3">
                                     {% if user.is_active %}
-                                    <a href="{% url 'block_user' user.id %}"
-                                        class="text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-red-400 transition-colors">
-                                        Block
-                                    </a>
+                                    <form method="POST" action="{% url 'block_user' user.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-red-400 transition-colors bg-transparent border-0 cursor-pointer">
+                                            Block
+                                        </button>
+                                    </form>
                                     {% else %}
-                                    <a href="{% url 'unblock_user' user.id %}"
-                                        class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors">
-                                        Unblock
-                                    </a>
+                                    <form method="POST" action="{% url 'unblock_user' user.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors bg-transparent border-0 cursor-pointer">
+                                            Unblock
+                                        </button>
+                                    </form>
                                     {% endif %}
                                     <button data-url="{% url 'delete_user' user.id %}"
                                         data-name="{{ user.username }}"
                                         onclick="openDeleteModal(this.dataset.url, this.dataset.name)"
-                                        class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors">
+                                        class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors bg-transparent border-0 cursor-pointer">
                                         Delete
                                     </button>
                                 </div>
@@ -218,10 +224,13 @@
                     class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-[#1C1C1E] rounded-xl border border-white/5 hover:bg-zinc-700 transition-colors cursor-pointer">
                     Cancel
                 </button>
-                <a id="delete_confirm_link" href="#"
-                    class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-colors text-center cursor-pointer">
-                    Confirm Delete
-                </a>
+                <form id="delete_customer_form" method="POST" action="" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-colors text-center cursor-pointer">
+                        Confirm Delete
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -229,7 +238,7 @@
     <script>
         function openDeleteModal(url, name) {
             document.getElementById('delete_modal').classList.remove('hidden');
-            document.getElementById('delete_confirm_link').href = url;
+            document.getElementById('delete_customer_form').action = url;
             document.getElementById('delete_item_name').textContent = name;
         }
 

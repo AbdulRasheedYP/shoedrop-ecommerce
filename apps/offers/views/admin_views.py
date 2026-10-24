@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Count, Q
 
@@ -8,7 +9,7 @@ from apps.products.models import Product
 from apps.category.models import Category
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def offer_list(request):
     search = request.GET.get('search', '')
     status = request.GET.get('status', '')
@@ -36,7 +37,7 @@ def offer_list(request):
     return render(request, 'admin/offers/offer_list.html', context)
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def add_offer(request):
     if request.method == 'POST':
         offer_title = request.POST.get('offer_title')
@@ -67,7 +68,7 @@ def add_offer(request):
     return render(request, 'admin/offers/add_offer.html', {'products': products, 'categories': categories})
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def edit_offer(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
 
@@ -109,7 +110,8 @@ def edit_offer(request, offer_id):
     return render(request, 'admin/offers/edit_offer.html', context)
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
+@require_POST
 def delete_offer(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
     offer.delete()

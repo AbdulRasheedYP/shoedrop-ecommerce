@@ -53,10 +53,13 @@
               </div>
 
               <!-- Delete -->
-              <a href="{% url 'remove_from_cart' item.id %}"
-                class="text-gray-300 hover:text-red-500 transition-colors text-sm shrink-0 p-1.5 rounded-lg hover:bg-red-50">
-                <i class="fa-regular fa-trash-can"></i>
-              </a>
+              <form method="POST" action="{% url 'remove_from_cart' item.id %}" class="inline shrink-0">
+                {% csrf_token %}
+                <button type="submit"
+                  class="text-gray-300 hover:text-red-500 transition-colors text-sm p-1.5 rounded-lg hover:bg-red-50 bg-transparent border-0 cursor-pointer">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </form>
             </div>
 
             <!-- Bottom row: size/qty/price -->

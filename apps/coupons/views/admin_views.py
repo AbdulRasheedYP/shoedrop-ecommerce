@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 
 from apps.coupons.models import Coupon
 from apps.category.models import Category
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def coupon_list(request):
     search = request.GET.get('search', '')
     status = request.GET.get('status', '')
@@ -29,7 +30,7 @@ def coupon_list(request):
     return render(request, 'admin/coupons/coupon_list.html', context)
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def add_coupon(request):
     if request.method == 'POST':
         coupon_name = request.POST.get('coupon_name')
@@ -69,7 +70,7 @@ def add_coupon(request):
     return render(request, 'admin/coupons/add_coupon.html', {'categories': categories})
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
 def edit_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
 
@@ -112,7 +113,8 @@ def edit_coupon(request, coupon_id):
     return render(request, 'admin/coupons/edit_coupon.html', context)
 
 
-@login_required(login_url='admin_login')
+@staff_member_required(login_url='admin_login')
+@require_POST
 def delete_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
     coupon.delete()

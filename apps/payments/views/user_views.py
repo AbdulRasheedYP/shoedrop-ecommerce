@@ -41,9 +41,6 @@ def razorpay_payment(request):
         messages.error(request, 'Unable to process payment. Check your cart.')
         return redirect('checkout')
 
-    request.session['address_id'] = address_id
-    request.session['buy_now_id'] = buy_now_id or ''
-
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
     try:
@@ -53,10 +50,14 @@ def razorpay_payment(request):
             'payment_capture': 1
         })
     except Exception as e:
-        request.session.pop('address_id', None)
-        request.session.pop('buy_now_id', None)
         messages.error(request, 'Payment gateway is currently unavailable. Please try again later.')
         return redirect('checkout')
+
+    # Securely track session parameters for verification
+    request.session['address_id'] = address_id
+    request.session['buy_now_id'] = buy_now_id or ''
+    request.session['razorpay_order_id'] = payment['id']
+    request.session['expected_razorpay_amount'] = totals['amount_paise']
 
     context = {
         'razorpay_order_id': payment['id'],
@@ -79,6 +80,16 @@ def verify_razorpay_payment(request):
     razorpay_payment_id = request.POST.get('razorpay_payment_id')
     razorpay_signature = request.POST.get('razorpay_signature')
 
+    session_order_id = request.session.get('razorpay_order_id')
+    expected_amount = request.session.get('expected_razorpay_amount')
+
+    # Verify session validity and order ID integrity
+    if not session_order_id or not razorpay_order_id or razorpay_order_id != session_order_id:
+        messages.error(request, 'Invalid or expired payment session. Please try checking out again.')
+        request.session.pop('razorpay_order_id', None)
+        request.session.pop('expected_razorpay_amount', None)
+        return redirect('checkout')
+
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
     try:
@@ -88,7 +99,21 @@ def verify_razorpay_payment(request):
             'razorpay_signature': razorpay_signature
         })
 
-    except razorpay.errors.SignatureVerificationError:
+        # Fetch payment details from Razorpay to guarantee paid amount and order match
+        payment_details = client.payment.fetch(razorpay_payment_id)
+        if (
+            payment_details.get('order_id') != session_order_id
+            or int(payment_details.get('amount', 0)) != int(expected_amount)
+            or payment_details.get('status') not in ['captured', 'authorized']
+        ):
+            messages.error(request, 'Payment verification failed: Amount or status mismatch.')
+            request.session.pop('address_id', None)
+            request.session.pop('buy_now_id', None)
+            request.session.pop('razorpay_order_id', None)
+            request.session.pop('expected_razorpay_amount', None)
+            return redirect('checkout')
+
+    except Exception:
         mutable_post = request.POST.copy()
         mutable_post['address_id'] = request.session.get('address_id')
         buy_now_session = request.session.get('buy_now_id', '')
@@ -100,6 +125,8 @@ def verify_razorpay_payment(request):
         
         request.session.pop('address_id', None)
         request.session.pop('buy_now_id', None)
+        request.session.pop('razorpay_order_id', None)
+        request.session.pop('expected_razorpay_amount', None)
         
         if order:
             return redirect(f'/payments/payment-failed/?order_id={order.id}')
@@ -119,6 +146,8 @@ def verify_razorpay_payment(request):
 
     request.session.pop('address_id', None)
     request.session.pop('buy_now_id', None)
+    request.session.pop('razorpay_order_id', None)
+    request.session.pop('expected_razorpay_amount', None)
 
     if not order:
         messages.error(request, 'Payment received but order failed. Contact support. Payment ID: ' + (razorpay_payment_id or ''))
@@ -159,31 +188,34 @@ def wallet_payment(request):
     grand_total = totals['grand_total']
 
     from decimal import Decimal
+    from django.db import transaction
+    from apps.payments.models import Wallet, WalletTransaction
+
     grand_total_decimal = Decimal(str(grand_total))
 
-    # Get or create the wallet for the user
-    from apps.payments.models import Wallet, WalletTransaction
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
+    with transaction.atomic():
+        wallet, created = Wallet.objects.get_or_create(user=request.user)
+        wallet = Wallet.objects.select_for_update().get(id=wallet.id)
 
-    if wallet.balance < grand_total_decimal:
-        messages.error(request, 'Insufficient wallet balance.')
-        return redirect('checkout')
+        if wallet.balance < grand_total_decimal:
+            messages.error(request, 'Insufficient wallet balance.')
+            return redirect('checkout')
 
-    order = create_order(request, payment_method='Wallet', payment_status='paid')
+        order = create_order(request, payment_method='Wallet', payment_status='paid')
 
-    if not order:
-        messages.error(request, 'Unable to place order.')
-        return redirect('checkout')
+        if not order:
+            messages.error(request, 'Unable to place order.')
+            return redirect('checkout')
 
-    wallet.balance -= grand_total_decimal
-    wallet.save()
+        wallet.balance -= grand_total_decimal
+        wallet.save()
 
-    WalletTransaction.objects.create(
-        wallet=wallet,
-        amount=grand_total_decimal,
-        transaction_type='debit',
-        description=f'Order #{order.id} payment'
-    )
+        WalletTransaction.objects.create(
+            wallet=wallet,
+            amount=grand_total_decimal,
+            transaction_type='debit',
+            description=f'Order #{order.id} payment'
+        )
 
     return redirect(f'/orders/order-success/?order_id={order.id}')
 

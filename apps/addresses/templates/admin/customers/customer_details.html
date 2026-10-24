@@ -112,15 +112,21 @@
             <!-- Action Controls Block at bottom -->
             <div class="pt-6 border-t border-white/5 flex items-center justify-end">
                 {% if customer.is_active %}
-                <a href="{% url 'block_user' customer.id %}" 
-                    class="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors">
-                    Block User
-                </a>
+                <form method="POST" action="{% url 'block_user' customer.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Block User
+                    </button>
+                </form>
                 {% else %}
-                <a href="{% url 'unblock_user' customer.id %}" 
-                    class="px-5 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors">
-                    Unblock User
-                </a>
+                <form method="POST" action="{% url 'unblock_user' customer.id %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        Unblock User
+                    </button>
+                </form>
                 {% endif %}
             </div>
 

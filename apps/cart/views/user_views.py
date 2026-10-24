@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.conf import settings
 
@@ -90,6 +91,7 @@ def add_to_cart(request, variant_id):
 
 
 @login_required(login_url='login')
+@require_POST
 def remove_from_cart(request, item_id):
 
     cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)

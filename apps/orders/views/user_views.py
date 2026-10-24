@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.db import transaction
 from decimal import Decimal
 from django.conf import settings
 
@@ -256,38 +258,66 @@ def create_order(request, payment_method, payment_status):
     if not totals:
         return None
 
-    order = Order.objects.create(
-        user=request.user,
-        address=address,
-        payment_method=payment_method,
-        payment_status=payment_status,
-        order_status='pending',
-        total_amount=totals['grand_total'],
-        coupon_discount=totals.get('coupon_discount', 0),
-        coupon=totals.get('coupon')
-    )
+    with transaction.atomic():
+        # If order payment failed, record the failed order without deducting inventory stock
+        if payment_status == 'failed':
+            order = Order.objects.create(
+                user=request.user,
+                address=address,
+                payment_method=payment_method,
+                payment_status=payment_status,
+                order_status='pending',
+                total_amount=totals['grand_total'],
+                coupon_discount=totals.get('coupon_discount', 0),
+                coupon=totals.get('coupon')
+            )
+            for item in totals['items']:
+                OrderItem.objects.create(
+                    order=order,
+                    product_variant=item['variant'],
+                    quantity=item['quantity'],
+                    unit_price=item['price']
+                )
+            return order
 
-    for item in totals['items']:
+        # For paid / COD orders: Verify stock with row-level locks to prevent overselling
+        for item in totals['items']:
+            variant_lock = ProductVariant.objects.select_for_update().get(id=item['variant'].id)
+            if variant_lock.stock < item['quantity']:
+                messages.error(request, f'Insufficient stock for "{variant_lock.product.product_name}".')
+                return None
 
-        OrderItem.objects.create(
-            order=order,
-            product_variant=item['variant'],
-            quantity=item['quantity'],
-            unit_price=item['price']
+        order = Order.objects.create(
+            user=request.user,
+            address=address,
+            payment_method=payment_method,
+            payment_status=payment_status,
+            order_status='pending',
+            total_amount=totals['grand_total'],
+            coupon_discount=totals.get('coupon_discount', 0),
+            coupon=totals.get('coupon')
         )
 
-        variant = item['variant']
-        variant.stock -= item['quantity']
-        variant.save()
+        for item in totals['items']:
+            variant_lock = ProductVariant.objects.select_for_update().get(id=item['variant'].id)
+            OrderItem.objects.create(
+                order=order,
+                product_variant=variant_lock,
+                quantity=item['quantity'],
+                unit_price=item['price']
+            )
 
-    if not buy_now_id:
-        CartItem.objects.filter(user=request.user).delete()
+            variant_lock.stock -= item['quantity']
+            variant_lock.save()
 
-    # Clear the applied coupon from session after order is placed
-    if 'applied_coupon' in request.session:
-        del request.session['applied_coupon']
+        if not buy_now_id:
+            CartItem.objects.filter(user=request.user).delete()
 
-    return order
+        # Clear the applied coupon from session after order is placed
+        if 'applied_coupon' in request.session:
+            del request.session['applied_coupon']
+
+        return order
 
 
 
@@ -455,68 +485,79 @@ def cancel_order(request, order_id):
         if not selected_item_ids:
             messages.error(request, 'Please select at least one item to cancel.')
             return redirect('order_details', order_id=order.id)
+
+        from decimal import Decimal
+        from apps.orders.utils import calculate_item_refund_amount
+        from apps.payments.models import Wallet, WalletTransaction
+
+        with transaction.atomic():
+            locked_order = Order.objects.select_for_update().get(id=order_id, user=request.user)
+
+            if locked_order.order_status not in ['pending', 'processing']:
+                messages.error(request, 'This order cannot be cancelled.')
+                return redirect('order_details', order_id=locked_order.id)
+
+            items_to_cancel = locked_order.items.select_for_update().filter(id__in=selected_item_ids, item_status='active')
             
-        items_to_cancel = order.items.filter(id__in=selected_item_ids, item_status='active')
-        
-        if not items_to_cancel.exists():
-            messages.error(request, 'Selected items cannot be cancelled.')
-            return redirect('order_details', order_id=order.id)
-            
-        # Check if we are cancelling all remaining active items
-        active_items_count = order.items.filter(item_status='active').count()
-        cancelling_all_remaining = (active_items_count == items_to_cancel.count())
-
-        if cancelling_all_remaining:
-            refund_total = float(order.total_amount)
-            
-            for item in items_to_cancel:
-                item.item_status = 'cancelled'
-                item.save()
-                variant = item.product_variant
-                variant.stock += item.quantity
-                variant.save()
-
-            order.total_amount = 0
-            order.order_status = 'cancelled'
-        else:
-            refund_total = 0
-            for item in items_to_cancel:
-                item.item_status = 'cancelled'
-                item.save()
-
-                # Restore stock
-                variant = item.product_variant
-                variant.stock += item.quantity
-                variant.save()
-
-                # Deduct from order total using proper prorated amount
-                from apps.orders.utils import calculate_item_refund_amount
-                deduction_decimal = calculate_item_refund_amount(order, item)
-                deduction_float = float(deduction_decimal)
+            if not items_to_cancel.exists():
+                messages.error(request, 'Selected items are not active or have already been cancelled.')
+                return redirect('order_details', order_id=locked_order.id)
                 
-                order.total_amount = float(order.total_amount) - deduction_float
-                refund_total += deduction_float
+            # Check if we are cancelling all remaining active items
+            active_items_count = locked_order.items.filter(item_status='active').count()
+            cancelling_all_remaining = (active_items_count == items_to_cancel.count())
 
-            if order.total_amount < 0:
-                order.total_amount = 0
+            if cancelling_all_remaining:
+                refund_total = float(locked_order.total_amount)
+                
+                for item in items_to_cancel:
+                    item.item_status = 'cancelled'
+                    item.save()
+                    variant = ProductVariant.objects.select_for_update().filter(id=item.product_variant_id).first()
+                    if variant:
+                        variant.stock += item.quantity
+                        variant.save()
 
-        order.save()
+                locked_order.total_amount = 0
+                locked_order.order_status = 'cancelled'
+            else:
+                refund_total = 0
+                for item in items_to_cancel:
+                    item.item_status = 'cancelled'
+                    item.save()
 
-        # Wallet refund for paid orders (Wallet or Razorpay)
-        if order.payment_status == 'paid' and order.payment_method in ['Wallet', 'Razorpay'] and refund_total > 0:
-            from apps.payments.models import Wallet, WalletTransaction
-            from decimal import Decimal
-            wallet, _ = Wallet.objects.get_or_create(user=request.user)
-            wallet.balance += Decimal(str(round(refund_total, 2)))
-            wallet.save()
-            WalletTransaction.objects.create(
-                wallet=wallet,
-                amount=Decimal(str(round(refund_total, 2))),
-                transaction_type='credit',
-                description=f'Refund for cancelled items in Order #{order.id}'
-            )
+                    # Restore stock
+                    variant = ProductVariant.objects.select_for_update().filter(id=item.product_variant_id).first()
+                    if variant:
+                        variant.stock += item.quantity
+                        variant.save()
 
-        messages.success(request, 'Selected items have been cancelled successfully.')
+                    # Deduct from order total using proper prorated amount
+                    deduction_decimal = calculate_item_refund_amount(locked_order, item)
+                    deduction_float = float(deduction_decimal)
+                    
+                    locked_order.total_amount = float(locked_order.total_amount) - deduction_float
+                    refund_total += deduction_float
+
+                if locked_order.total_amount < 0:
+                    locked_order.total_amount = 0
+
+            locked_order.save()
+
+            # Wallet refund for paid orders (Wallet or Razorpay)
+            if locked_order.payment_status == 'paid' and locked_order.payment_method in ['Wallet', 'Razorpay'] and refund_total > 0:
+                wallet, _ = Wallet.objects.get_or_create(user=request.user)
+                wallet = Wallet.objects.select_for_update().get(id=wallet.id)
+                wallet.balance += Decimal(str(round(refund_total, 2)))
+                wallet.save()
+                WalletTransaction.objects.create(
+                    wallet=wallet,
+                    amount=Decimal(str(round(refund_total, 2))),
+                    transaction_type='credit',
+                    description=f'Refund for cancelled items in Order #{locked_order.id}'
+                )
+
+            messages.success(request, 'Selected items have been cancelled successfully.')
 
     return redirect('order_details', order_id=order.id)
 @login_required(login_url='login')
@@ -600,60 +641,64 @@ def return_order(request, order_id):
 # ─── Individual Item Cancel ───────────────────────────────────────────────────
 
 @login_required(login_url='login')
+@require_POST
 def cancel_item(request, item_id):
-    item = get_object_or_404(
-        OrderItem,
-        id=item_id,
-        order__user=request.user
-    )
-    order = item.order
+    with transaction.atomic():
+        item = get_object_or_404(
+            OrderItem.objects.select_for_update(),
+            id=item_id,
+            order__user=request.user
+        )
+        order = Order.objects.select_for_update().get(id=item.order_id)
 
-    # Only active items in a non-final order can be cancelled
-    cancellable_order_statuses = ['pending', 'processing']
-    if item.item_status == 'active' and order.order_status in cancellable_order_statuses:
-        item.item_status = 'cancelled'
-        item.save()
+        # Only active items in a non-final order can be cancelled
+        cancellable_order_statuses = ['pending', 'processing']
+        if item.item_status == 'active' and order.order_status in cancellable_order_statuses:
+            item.item_status = 'cancelled'
+            item.save()
 
-        variant = item.product_variant
-        variant.stock += item.quantity
-        variant.save()
+            variant = ProductVariant.objects.select_for_update().filter(id=item.product_variant_id).first()
+            if variant:
+                variant.stock += item.quantity
+                variant.save()
 
-        cancelling_last_item = (order.items.filter(item_status='active').count() == 0)
+            cancelling_last_item = (order.items.filter(item_status='active').count() == 0)
 
-        if cancelling_last_item:
-            deduction_float = float(order.total_amount)
-            order.total_amount = 0
-            order.order_status = 'cancelled'
-        else:
-            from apps.orders.utils import calculate_item_refund_amount
-            deduction_decimal = calculate_item_refund_amount(order, item)
-            deduction_float = float(deduction_decimal)
-            
-            order.total_amount = float(order.total_amount) - deduction_float
-
-            if order.total_amount < 0:
+            if cancelling_last_item:
+                deduction_float = float(order.total_amount)
                 order.total_amount = 0
+                order.order_status = 'cancelled'
+            else:
+                from apps.orders.utils import calculate_item_refund_amount
+                deduction_decimal = calculate_item_refund_amount(order, item)
+                deduction_float = float(deduction_decimal)
+                
+                order.total_amount = float(order.total_amount) - deduction_float
 
-        order.save()
+                if order.total_amount < 0:
+                    order.total_amount = 0
 
-        # Wallet refund for paid orders
-        if order.payment_status == 'paid' and order.payment_method in ['Wallet', 'Razorpay']:
-            from apps.payments.models import Wallet, WalletTransaction
-            from decimal import Decimal
-            refund_amount = Decimal(str(round(deduction_float, 2)))
-            wallet, _ = Wallet.objects.get_or_create(user=request.user)
-            wallet.balance += refund_amount
-            wallet.save()
-            WalletTransaction.objects.create(
-                wallet=wallet,
-                amount=refund_amount,
-                transaction_type='credit',
-                description=f'Refund for cancelled item in Order #{order.id}'
-            )
+            order.save()
 
-        messages.success(request, 'Item cancelled successfully.')
-    else:
-        messages.error(request, 'This item cannot be cancelled.')
+            # Wallet refund for paid orders
+            if order.payment_status == 'paid' and order.payment_method in ['Wallet', 'Razorpay']:
+                from apps.payments.models import Wallet, WalletTransaction
+                from decimal import Decimal
+                refund_amount = Decimal(str(round(deduction_float, 2)))
+                wallet, _ = Wallet.objects.get_or_create(user=request.user)
+                wallet = Wallet.objects.select_for_update().get(id=wallet.id)
+                wallet.balance += refund_amount
+                wallet.save()
+                WalletTransaction.objects.create(
+                    wallet=wallet,
+                    amount=refund_amount,
+                    transaction_type='credit',
+                    description=f'Refund for cancelled item in Order #{order.id}'
+                )
+
+            messages.success(request, 'Item cancelled successfully.')
+        else:
+            messages.error(request, 'This item cannot be cancelled.')
 
     return redirect('order_details', order_id=order.id)
 
