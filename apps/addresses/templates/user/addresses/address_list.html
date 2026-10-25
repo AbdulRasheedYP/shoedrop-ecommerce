@@ -8,6 +8,14 @@
     <main class="flex-1 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
         {% include 'user/_messages.html' %}
 
+        <!-- Back to Profile on Mobile -->
+        <a href="{% url 'profile' %}" class="md:hidden inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-brand-dark mb-4 transition-colors">
+            <svg width="14" height="14" style="width: 14px; height: 14px; display: block;" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
+            </svg>
+            <span>Back to Account</span>
+        </a>
+
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5 mb-6 gap-4">
             <div>
                 <h1 class="text-2xl font-black uppercase tracking-wider text-slate-950">My Addresses</h1>
