@@ -61,35 +61,20 @@
 
   </div>
 
-  <!-- Mobile Menu Drawer -->
+  <!-- Mobile Menu Drawer (matching desktop navigation links) -->
   <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-5 py-4 space-y-1">
-      <a href="{% url 'shop' %}?category=Men" class="block px-3 py-2.5 rounded-xl text-xs font-bold text-gray-800 hover:bg-brand-50 hover:text-brand-dark transition-colors uppercase tracking-wider">
-        Men
-      </a>
-      <a href="{% url 'shop' %}?category=Woman" class="block px-3 py-2.5 rounded-xl text-xs font-bold text-gray-800 hover:bg-brand-50 hover:text-brand-dark transition-colors uppercase tracking-wider">
-        Women
-      </a>
-      <a href="{% url 'shop' %}?category=Kids" class="block px-3 py-2.5 rounded-xl text-xs font-bold text-gray-800 hover:bg-brand-50 hover:text-brand-dark transition-colors uppercase tracking-wider">
-        Kids
-      </a>
-      <a href="{% url 'shop' %}" class="block px-3 py-2.5 rounded-xl text-xs font-bold text-gray-800 hover:bg-brand-50 hover:text-brand-dark transition-colors uppercase tracking-wider">
-        All Products
-      </a>
+    <div class="max-w-7xl mx-auto px-6 py-4 space-y-1">
+      <a href="{% url 'shop' %}?category=Men" class="block py-2.5 text-xs font-bold tracking-[0.2em] text-gray-800 hover:text-brand-dark transition-colors uppercase">MEN</a>
+      <a href="{% url 'shop' %}?category=Woman" class="block py-2.5 text-xs font-bold tracking-[0.2em] text-gray-800 hover:text-brand-dark transition-colors uppercase">WOMEN</a>
+      <a href="{% url 'shop' %}?category=Kids" class="block py-2.5 text-xs font-bold tracking-[0.2em] text-gray-800 hover:text-brand-dark transition-colors uppercase">KIDS</a>
 
-      {% if user.is_authenticated %}
-      <div class="pt-2 border-t border-gray-100 mt-2">
-        <a href="{% url 'logout' %}" class="block px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-colors uppercase tracking-wider">
-          Logout
-        </a>
+      <div class="border-t border-gray-100 pt-2 mt-2">
+        {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}" class="block py-2.5 text-xs font-bold tracking-[0.2em] text-brand-dark hover:text-brand-emerald transition-colors uppercase">LOGIN</a>
+        {% else %}
+        <a href="{% url 'logout' %}" class="block py-2.5 text-xs font-bold tracking-[0.2em] text-red-600 hover:text-red-700 transition-colors uppercase">LOGOUT</a>
+        {% endif %}
       </div>
-      {% else %}
-      <div class="pt-2 border-t border-gray-100 mt-2">
-        <a href="{% url 'login' %}" class="block w-full text-center bg-brand-dark hover:bg-brand-darker text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md transition-all">
-          Login
-        </a>
-      </div>
-      {% endif %}
     </div>
   </div>
 </nav>
