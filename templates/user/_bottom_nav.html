@@ -1,76 +1,73 @@
 <!-- MOBILE BOTTOM NAVIGATION BAR -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
-  <div class="flex items-center justify-between h-16 max-w-md mx-auto px-1">
+<style>
+  @media (min-width: 768px) {
+    #shoedrop-bottom-nav {
+      display: none !important;
+    }
+  }
+</style>
+<nav id="shoedrop-bottom-nav" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; z-index: 9999; background: #ffffff; border-top: 1px solid #e5e7eb; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom, 0px);">
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 58px; max-width: 480px; margin: 0 auto; padding: 0 4px;">
 
     <!-- 1. HOME -->
     <a href="{% url 'landing_page' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if request.path == '/' %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
+       style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; position: relative; color: {% if request.path == '/' %}#0a2e23{% else %}#9ca3af{% endif %};">
       {% if request.path == '/' %}
-      <span class="absolute top-0 w-8 h-0.5 bg-brand-dark rounded-full"></span>
+      <span style="position: absolute; top: 0; width: 28px; height: 3px; background-color: #0a2e23; border-radius: 9999px;"></span>
       {% endif %}
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if request.path == '/' %}2.2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if request.path == '/' %}2.4{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
       </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Home</span>
+      <span style="font-size: 10px; font-weight: {% if request.path == '/' %}800{% else %}600{% endif %}; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; line-height: 1;">Home</span>
     </a>
 
     <!-- 2. SHOP -->
     <a href="{% url 'shop' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if '/shop/' in request.path %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
+       style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; position: relative; color: {% if '/shop/' in request.path %}#0a2e23{% else %}#9ca3af{% endif %};">
       {% if '/shop/' in request.path %}
-      <span class="absolute top-0 w-8 h-0.5 bg-brand-dark rounded-full"></span>
+      <span style="position: absolute; top: 0; width: 28px; height: 3px; background-color: #0a2e23; border-radius: 9999px;"></span>
       {% endif %}
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/shop/' in request.path %}2.2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/shop/' in request.path %}2.4{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.25A2.25 2.25 0 0 1 0 18.75V5.25A2.25 2.25 0 0 1 2.25 3h13.5A2.25 2.25 0 0 1 18 5.25v13.5A2.25 2.25 0 0 1 15.75 21m-4.5 0h4.5M3.75 6.75h10.5m-10.5 4.5h10.5m-10.5 4.5h4.5" />
       </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Shop</span>
+      <span style="font-size: 10px; font-weight: {% if '/shop/' in request.path %}800{% else %}600{% endif %}; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; line-height: 1;">Shop</span>
     </a>
 
     <!-- 3. WISHLIST -->
     <a href="{% url 'wishlist' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if '/wishlist/' in request.path %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
+       style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; position: relative; color: {% if '/wishlist/' in request.path %}#0a2e23{% else %}#9ca3af{% endif %};">
       {% if '/wishlist/' in request.path %}
-      <span class="absolute top-0 w-8 h-0.5 bg-brand-dark rounded-full"></span>
+      <span style="position: absolute; top: 0; width: 28px; height: 3px; background-color: #0a2e23; border-radius: 9999px;"></span>
       {% endif %}
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="{% if '/wishlist/' in request.path %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="{% if '/wishlist/' in request.path %}2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
+      <svg width="20" height="20" fill="{% if '/wishlist/' in request.path %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="{% if '/wishlist/' in request.path %}2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
       </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Wishlist</span>
+      <span style="font-size: 10px; font-weight: {% if '/wishlist/' in request.path %}800{% else %}600{% endif %}; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; line-height: 1;">Wishlist</span>
     </a>
 
     <!-- 4. CART -->
     <a href="{% url 'cart' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if '/cart/' in request.path %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
+       style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; position: relative; color: {% if '/cart/' in request.path %}#0a2e23{% else %}#9ca3af{% endif %};">
       {% if '/cart/' in request.path %}
-      <span class="absolute top-0 w-8 h-0.5 bg-brand-dark rounded-full"></span>
+      <span style="position: absolute; top: 0; width: 28px; height: 3px; background-color: #0a2e23; border-radius: 9999px;"></span>
       {% endif %}
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/cart/' in request.path %}2.2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/cart/' in request.path %}2.4{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
       </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Cart</span>
+      <span style="font-size: 10px; font-weight: {% if '/cart/' in request.path %}800{% else %}600{% endif %}; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; line-height: 1;">Cart</span>
     </a>
 
-    <!-- 5. ACCOUNT -->
-    {% if user.is_authenticated %}
-    <a href="{% url 'profile' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
-      {% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path %}
-      <span class="absolute top-0 w-8 h-0.5 bg-brand-dark rounded-full"></span>
+    <!-- 5. ACCOUNT / PROFILE -->
+    <a href="{% if user.is_authenticated %}{% url 'profile' %}{% else %}{% url 'login' %}{% endif %}"
+       style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; position: relative; color: {% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path or '/login/' in request.path %}#0a2e23{% else %}#9ca3af{% endif %};">
+      {% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path or '/login/' in request.path %}
+      <span style="position: absolute; top: 0; width: 28px; height: 3px; background-color: #0a2e23; border-radius: 9999px;"></span>
       {% endif %}
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path %}2.2{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="{% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path or '/login/' in request.path %}2.4{% else %}1.8{% endif %}" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
       </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Account</span>
+      <span style="font-size: 10px; font-weight: {% if '/profile/' in request.path or '/orders/' in request.path or '/addresses/' in request.path or '/wallet/' in request.path or '/login/' in request.path %}800{% else %}600{% endif %}; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; line-height: 1;">Profile</span>
     </a>
-    {% else %}
-    <a href="{% url 'login' %}"
-       class="flex-1 flex flex-col items-center justify-center py-1 transition-all group relative {% if '/login/' in request.path %}text-brand-dark font-black{% else %}text-gray-400 font-medium hover:text-gray-700{% endif %}">
-      <svg class="w-5 h-5 transition-transform group-active:scale-90" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="width: 20px; height: 20px; display: block;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-      </svg>
-      <span class="text-[9px] uppercase tracking-wider mt-1 transition-colors leading-none">Login</span>
-    </a>
-    {% endif %}
 
   </div>
 </nav>

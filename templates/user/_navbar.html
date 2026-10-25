@@ -43,17 +43,17 @@
     <!-- Mobile: Search + Hamburger -->
     <div class="flex items-center gap-1 md:hidden text-gray-700">
       <a href="{% url 'shop' %}" class="p-2 hover:text-brand-dark transition-colors" title="Search">
-        <svg class="w-5 h-5" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
           <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
       </a>
 
-      <!-- Hamburger -->
-      <button id="mobile-menu-btn" aria-label="Open menu" class="p-2 hover:text-brand-dark transition-colors focus:outline-none">
-        <svg id="hamburger-icon" class="w-5 h-5" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
+      <!-- Hamburger Button -->
+      <button id="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" class="p-2 hover:text-brand-dark transition-colors focus:outline-none flex items-center justify-center">
+        <svg id="hamburger-icon" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 22px; height: 22px; display: block;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
-        <svg id="close-icon" class="w-5 h-5 hidden" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
+        <svg id="close-icon" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 22px; height: 22px; display: none;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </button>
@@ -64,41 +64,56 @@
   <!-- Mobile Menu Drawer -->
   <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white shadow-lg">
     <div class="max-w-7xl mx-auto px-5 py-4 space-y-1">
+
+      <!-- Profile Header / Account in Drawer -->
+      <div class="pb-3 border-b border-gray-100">
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-brand-50 border border-slate-200/80 rounded-xl text-slate-800 hover:text-brand-dark transition-colors">
+          <div class="w-9 h-9 rounded-full bg-brand-dark text-white flex items-center justify-center font-bold text-xs shrink-0">
+            {{ user.username|first|upper }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-black truncate uppercase tracking-wider text-slate-900">{{ user.username }}</p>
+            <p class="text-[10px] text-gray-500 font-medium">My Profile & Account</p>
+          </div>
+          <span class="text-xs font-bold text-brand-dark">&rarr;</span>
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="block w-full text-center bg-brand-dark hover:bg-brand-darker text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md transition-all duration-200">
+          Login / Register
+        </a>
+        {% endif %}
+      </div>
+
       <!-- Category Links -->
-      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pt-1 pb-2">Categories</p>
-      <a href="{% url 'shop' %}?category=Men" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pt-3 pb-2">Categories</p>
+      <a href="{% url 'shop' %}?category=Men" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
         <span>Men</span>
-        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <svg width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
-      <a href="{% url 'shop' %}?category=Woman" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+      <a href="{% url 'shop' %}?category=Woman" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
         <span>Women</span>
-        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <svg width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
-      <a href="{% url 'shop' %}?category=Kids" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+      <a href="{% url 'shop' %}?category=Kids" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
         <span>Kids</span>
-        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <svg width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
 
       <div class="h-px bg-gray-100 my-2"></div>
 
       <!-- Quick Explore Links -->
       <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pb-2">Explore</p>
-      <a href="{% url 'shop' %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+      <a href="{% url 'shop' %}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
         <span>All Products</span>
         <span class="text-[10px] text-brand-dark font-black uppercase tracking-wider">View All &rarr;</span>
       </a>
 
-      {% if not user.is_authenticated %}
-      <div class="pt-3 pb-1">
-        <a href="{% url 'login' %}" class="block w-full text-center bg-brand-dark hover:bg-brand-darker text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md transition-all duration-200 active:scale-[0.99]">
-          Login / Register
-        </a>
-      </div>
-      {% else %}
-      <div class="pt-2">
+      {% if user.is_authenticated %}
+      <div class="pt-2 border-t border-gray-100 mt-2">
         <a href="{% url 'logout' %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
           <span>Sign Out</span>
-          <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <svg width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         </a>
       </div>
       {% endif %}
@@ -107,15 +122,25 @@
 </nav>
 
 <script>
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const hamburgerIcon = document.getElementById('hamburger-icon');
-  const closeIcon = document.getElementById('close-icon');
+  (function() {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
 
-  mobileMenuBtn.addEventListener('click', () => {
-    const isOpen = !mobileMenu.classList.contains('hidden');
-    mobileMenu.classList.toggle('hidden', isOpen);
-    hamburgerIcon.classList.toggle('hidden', !isOpen);
-    closeIcon.classList.toggle('hidden', isOpen);
-  });
+    if (mobileMenuBtn && mobileMenu && hamburgerIcon && closeIcon) {
+      mobileMenuBtn.addEventListener('click', function() {
+        const isClosed = mobileMenu.classList.contains('hidden');
+        if (isClosed) {
+          mobileMenu.classList.remove('hidden');
+          hamburgerIcon.style.display = 'none';
+          closeIcon.style.display = 'block';
+        } else {
+          mobileMenu.classList.add('hidden');
+          hamburgerIcon.style.display = 'block';
+          closeIcon.style.display = 'none';
+        }
+      });
+    }
+  })();
 </script>
