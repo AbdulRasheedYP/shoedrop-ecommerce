@@ -44,13 +44,12 @@
       {% if request.GET.category %}
       <input type="hidden" name="category" value="{{ request.GET.category }}">
       {% endif %}
-
-      <div class="mb-4">
-        <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Search</h3>
-        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search shoes..."
-          class="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all">
-      </div>
-      <hr class="border-gray-100 my-4">
+      {% if request.GET.q %}
+      <input type="hidden" name="q" value="{{ request.GET.q }}">
+      {% endif %}
+      {% if request.GET.sort %}
+      <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+      {% endif %}
 
       <div class="mb-4">
         <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Subcategory</h3>
@@ -79,7 +78,7 @@
       </div>
       <hr class="border-gray-100 my-4">
 
-      <div class="mb-4">
+      <div class="mb-5">
         <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Color</h3>
         <div class="flex flex-wrap gap-2">
           {% for color in colors %}
@@ -90,18 +89,6 @@
           </label>
           {% endfor %}
         </div>
-      </div>
-      <hr class="border-gray-100 my-4">
-
-      <div class="mb-5">
-        <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2.5">Sort</h3>
-        <select name="sort" class="w-full appearance-none bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3.5 py-2.5 outline-none focus:border-brand-dark cursor-pointer shadow-sm">
-          <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>New Arrivals</option>
-          <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-          <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-          <option value="name_az" {% if request.GET.sort == 'name_az' %}selected{% endif %}>Name: A to Z</option>
-          <option value="name_za" {% if request.GET.sort == 'name_za' %}selected{% endif %}>Name: Z to A</option>
-        </select>
       </div>
 
       <button type="submit" class="w-full bg-brand-dark hover:bg-brand-darker transition-all text-white py-3 rounded-xl text-xs font-bold tracking-wider shadow-md active:scale-95">
@@ -115,23 +102,75 @@
 
   <!-- Top Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4 border-b border-gray-100 pb-4 sm:pb-6">
-    <div class="text-sm text-gray-600 font-medium flex items-center gap-2 flex-wrap">
+    <div class="text-sm text-gray-600 font-medium flex items-center gap-2">
       <span class="text-brand-dark font-black text-xl">{{ page_obj.paginator.count }}</span>
       <span class="uppercase tracking-widest text-[10px] font-bold text-gray-500 mt-1">Products Found</span>
     </div>
     
-    <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
+    <div class="flex items-center gap-3 overflow-x-auto pb-1 sm:pb-0">
+      <!-- Search & Sort Form -->
+      <form method="GET" action="{% url 'shop' %}" id="top-filter-form" class="flex items-center gap-3">
+        {% if request.GET.category %}
+        <input type="hidden" name="category" value="{{ request.GET.category }}">
+        {% endif %}
+        {% if request.GET.subcategory %}
+        <input type="hidden" name="subcategory" value="{{ request.GET.subcategory }}">
+        {% endif %}
+        {% if request.GET.size %}
+        <input type="hidden" name="size" value="{{ request.GET.size }}">
+        {% endif %}
+        {% if request.GET.color %}
+        <input type="hidden" name="color" value="{{ request.GET.color }}">
+        {% endif %}
+
+        <!-- Search -->
+        <div class="relative w-48 sm:w-56 shrink-0">
+          <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search shoes..."
+            class="w-full pl-10 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all shadow-sm">
+          <button type="submit" class="absolute inset-y-0 left-0 flex items-center text-gray-400 hover:text-brand-dark transition-colors cursor-pointer" style="padding-left: 14px; padding-right: 8px; background: transparent; border: none; outline: none;" title="Search">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 15px; height: 15px; display: block;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </button>
+          {% if request.GET.q %}
+          <a href="?{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}{% if request.GET.subcategory %}subcategory={{ request.GET.subcategory }}&{% endif %}{% if request.GET.size %}size={{ request.GET.size }}&{% endif %}{% if request.GET.color %}color={{ request.GET.color }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}{% endif %}"
+             class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-700 transition-colors" title="Clear search">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 14px; height: 14px; display: block;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- Sort -->
+        <div class="relative shrink-0">
+          <select name="sort" onchange="this.form.submit()"
+            class="appearance-none bg-white border border-gray-200 hover:border-brand-dark/40 text-gray-700 text-xs font-semibold rounded-xl pl-3.5 pr-8 py-2.5 outline-none focus:border-brand-dark cursor-pointer shadow-sm transition-colors">
+            <option value="" {% if not request.GET.sort %}selected{% endif %}>Sort By</option>
+            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="name_az" {% if request.GET.sort == 'name_az' %}selected{% endif %}>Name: A to Z</option>
+            <option value="name_za" {% if request.GET.sort == 'name_za' %}selected{% endif %}>Name: Z to A</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 14px; height: 14px; display: block;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+      </form>
+
+      <!-- All Products Button -->
       <a href="{%url 'shop'%}"
-         class="flex items-center gap-2 px-5 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-sm hover:shadow active:scale-95">
+         class="flex items-center gap-2 px-5 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-sm hover:shadow active:scale-95 whitespace-nowrap shrink-0">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
         All Products
-
       </a>
       
       <!-- Mobile Filter Button -->
-      <button onclick="openFilterDrawer()" class="lg:hidden flex items-center gap-2 bg-[#032b1d] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl hover:opacity-90 transition shadow-sm active:scale-95">
+      <button onclick="openFilterDrawer()" class="lg:hidden flex items-center gap-2 bg-[#032b1d] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl hover:opacity-90 transition shadow-sm active:scale-95 whitespace-nowrap shrink-0">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/>
         </svg>
@@ -154,15 +193,12 @@
         {% if request.GET.category %}
         <input type="hidden" name="category" value="{{ request.GET.category }}">
         {% endif %}
-
-        <!-- Search -->
-        <div class="mb-4">
-          <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Search</h3>
-          <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search shoes..."
-            class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 transition-all">
-        </div>
-
-        <hr class="border-gray-100 my-4">
+        {% if request.GET.q %}
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+        {% endif %}
+        {% if request.GET.sort %}
+        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+        {% endif %}
 
         <!-- Subcategory -->
         <div class="mb-4">
@@ -198,7 +234,7 @@
         <hr class="border-gray-100 my-4">
 
         <!-- Color -->
-        <div class="mb-4">
+        <div class="mb-5">
           <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">Color</h3>
           <div class="flex flex-wrap gap-2">
             {% for color in colors %}
@@ -208,25 +244,6 @@
                 style="background-color: {{ color|lower }};"></div>
             </label>
             {% endfor %}
-          </div>
-        </div>
-
-        <hr class="border-gray-100 my-4">
-
-        <!-- Sort -->
-        <div class="mb-5">
-          <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-2.5">Sort</h3>
-          <div class="relative">
-            <select name="sort" class="w-full appearance-none bg-white border border-gray-200 hover:border-brand-dark/40 text-gray-700 text-xs font-semibold rounded-xl px-3.5 py-2.5 pr-10 outline-none focus:border-brand-dark cursor-pointer shadow-sm transition-colors">
-              <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>New Arrivals</option>
-              <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-              <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-              <option value="name_az" {% if request.GET.sort == 'name_az' %}selected{% endif %}>Name: A to Z</option>
-              <option value="name_za" {% if request.GET.sort == 'name_za' %}selected{% endif %}>Name: Z to A</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
           </div>
         </div>
 
@@ -329,7 +346,7 @@
 
 </main>
 
-<!-- Mobile Filter Drawer Script -->
+<!-- Filter Drawer & Search Sync Script -->
 <script>
   function openFilterDrawer() {
     document.getElementById('filter-drawer').style.transform = 'translateX(0)';
@@ -341,6 +358,28 @@
     document.getElementById('filter-overlay').classList.add('hidden');
     document.body.style.overflow = '';
   }
+
+  // Ensure current top search value is synced when sidebar filter forms are submitted
+  document.addEventListener('DOMContentLoaded', function() {
+    const topSearch = document.querySelector('#top-filter-form input[name="q"]');
+    if (topSearch) {
+      ['desktop-filter-form', 'mobile-filter-form'].forEach(function(formId) {
+        const form = document.getElementById(formId);
+        if (form) {
+          form.addEventListener('submit', function() {
+            let hiddenQ = form.querySelector('input[name="q"]');
+            if (!hiddenQ) {
+              hiddenQ = document.createElement('input');
+              hiddenQ.type = 'hidden';
+              hiddenQ.name = 'q';
+              form.appendChild(hiddenQ);
+            }
+            hiddenQ.value = topSearch.value.trim();
+          });
+        }
+      });
+    }
+  });
 </script>
 
 {% endblock %}
