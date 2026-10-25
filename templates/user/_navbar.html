@@ -40,33 +40,20 @@
       {% endif %}
     </div>
 
-    <!-- Mobile: Icons + Hamburger -->
-    <div class="flex items-center gap-3 md:hidden text-gray-700">
-      
-      <a href="{% url 'wishlist' %}" class="p-1 hover:text-brand-dark transition-colors" title="Wishlist">
-        <svg class="h-[19px] w-[19px]" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-        </svg>
-      </a>
-
-      <a href="{% url 'cart' %}" class="p-1 hover:text-brand-dark transition-colors" title="Cart">
-        <svg class="h-[19px] w-[19px]" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-        </svg>
-      </a>
-
-      <a href="{% url 'profile' %}" class="p-1 hover:text-brand-dark transition-colors" title="Profile">
-        <svg class="h-[19px] w-[19px]" width="19" height="19" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+    <!-- Mobile: Search + Hamburger -->
+    <div class="flex items-center gap-1 md:hidden text-gray-700">
+      <a href="{% url 'shop' %}" class="p-2 hover:text-brand-dark transition-colors" title="Search">
+        <svg class="w-5 h-5" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
         </svg>
       </a>
 
       <!-- Hamburger -->
-      <button id="mobile-menu-btn" aria-label="Open menu" class="p-1 hover:text-brand-dark transition-colors focus:outline-none">
-        <svg id="hamburger-icon" class="h-5 w-5" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <button id="mobile-menu-btn" aria-label="Open menu" class="p-2 hover:text-brand-dark transition-colors focus:outline-none">
+        <svg id="hamburger-icon" class="w-5 h-5" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
-        <svg id="close-icon" class="h-5 w-5 hidden" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <svg id="close-icon" class="w-5 h-5 hidden" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; display: block;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </button>
@@ -75,30 +62,43 @@
   </div>
 
   <!-- Mobile Menu Drawer -->
-  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white">
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white shadow-lg">
     <div class="max-w-7xl mx-auto px-5 py-4 space-y-1">
       <!-- Category Links -->
-      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pt-1 pb-2">Shop</p>
-      <a href="{% url 'shop' %}?category=Men" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
-        <svg class="h-4 w-4 text-brand-emerald" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-        Men
+      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pt-1 pb-2">Categories</p>
+      <a href="{% url 'shop' %}?category=Men" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+        <span>Men</span>
+        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
-      <a href="{% url 'shop' %}?category=Woman" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
-        <svg class="h-4 w-4 text-brand-emerald" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-        Women
+      <a href="{% url 'shop' %}?category=Woman" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+        <span>Women</span>
+        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
       </a>
-      <a href="{% url 'shop' %}?category=Kids" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
-        <svg class="h-4 w-4 text-brand-emerald" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
-        Kids
+      <a href="{% url 'shop' %}?category=Kids" class="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+        <span>Kids</span>
+        <svg class="w-4 h-4 text-gray-400" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+
+      <div class="h-px bg-gray-100 my-2"></div>
+
+      <!-- Quick Explore Links -->
+      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pb-2">Explore</p>
+      <a href="{% url 'shop' %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:bg-brand-50 hover:text-brand-dark transition-colors">
+        <span>All Products</span>
+        <span class="text-[10px] text-brand-dark font-black uppercase tracking-wider">View All &rarr;</span>
       </a>
 
       {% if not user.is_authenticated %}
-      <div class="h-px bg-gray-100 my-2"></div>
-      <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 px-3 pb-2">Account</p>
-      
-      <div class="pt-2 pb-1">
+      <div class="pt-3 pb-1">
         <a href="{% url 'login' %}" class="block w-full text-center bg-brand-dark hover:bg-brand-darker text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md transition-all duration-200 active:scale-[0.99]">
-          Login
+          Login / Register
+        </a>
+      </div>
+      {% else %}
+      <div class="pt-2">
+        <a href="{% url 'logout' %}" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
+          <span>Sign Out</span>
+          <svg class="w-4 h-4" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         </a>
       </div>
       {% endif %}
