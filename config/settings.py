@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -176,32 +178,15 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
-AWS_ENDPOINT_URL_S3 = os.getenv("AWS_ENDPOINT_URL_S3")
-
-if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
-    if AWS_ENDPOINT_URL_S3:
-        # Neon Object Storage or custom S3 endpoint
-        AWS_S3_ENDPOINT_URL = AWS_ENDPOINT_URL_S3
-        AWS_S3_ADDRESSING_STYLE = "path"
-        MEDIA_URL = f"{AWS_ENDPOINT_URL_S3}/{AWS_STORAGE_BUCKET_NAME}/"
-    else:
-        # Standard AWS S3
-        AWS_S3_CUSTOM_DOMAIN = (
-            f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME or 'us-east-1'}.amazonaws.com"
-        )
-        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
-
-    default_storage = "storages.backends.s3.S3Storage"
-else:
-    default_storage = "django.core.files.storage.FileSystemStorage"
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
 
 STORAGES = {
     "default": {
-        "BACKEND": default_storage,
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
