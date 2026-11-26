@@ -22,3 +22,5 @@ staticfiles/
 .DS_Store
 Thumbs.db
 
+.neon
+node_modules/
