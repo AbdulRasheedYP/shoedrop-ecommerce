@@ -140,16 +140,19 @@ def signup(request):
             'otp': otp
         })
 
-        send_mail(
-            'Welcome to Shoedrop! Please verify your email',
-            f'Hello {username},\n\nThank you for registering at Shoedrop!\n\nYour OTP for email verification is: {otp}\nThis OTP is valid for 1 minute. Please do not share it with anyone.\n\nBest regards,\nThe Shoedrop Team',
-            None,
-            [email],
-            fail_silently=False,
-            html_message=html_message
-        )
-
-        return redirect('verify_otp')
+        try:
+            send_mail(
+                'Welcome to Shoedrop! Please verify your email',
+                f'Hello {username},\n\nThank you for registering at Shoedrop!\n\nYour OTP for email verification is: {otp}\nThis OTP is valid for 1 minute. Please do not share it with anyone.\n\nBest regards,\nThe Shoedrop Team',
+                None,
+                [email],
+                fail_silently=False,
+                html_message=html_message
+            )
+            return redirect('verify_otp')
+        except Exception as e:
+            messages.error(request, 'Unable to send verification OTP email. Please verify email settings or try again later.')
+            return render(request, 'user/accounts/signup.html', context)
                 
     return render(request,'user/accounts/signup.html',context)
 
@@ -315,18 +318,20 @@ def resend_otp(request):
         }
     )
 
-    send_mail(
-        'Shoedrop OTP Verification (Resend)',
-        f'Hello,\n\nYour new OTP is: {otp}\n'
-        'This OTP is valid for 1 minute.\n\n'
-        'Best regards,\nThe Shoedrop Team',
-        None,
-        [email],
-        fail_silently=False,
-        html_message=html_message
-    )
-
-    messages.success(request, 'New OTP sent successfully.')
+    try:
+        send_mail(
+            'Shoedrop OTP Verification (Resend)',
+            f'Hello,\n\nYour new OTP is: {otp}\n'
+            'This OTP is valid for 1 minute.\n\n'
+            'Best regards,\nThe Shoedrop Team',
+            None,
+            [email],
+            fail_silently=False,
+            html_message=html_message
+        )
+        messages.success(request, 'New OTP sent successfully.')
+    except Exception as e:
+        messages.error(request, 'Unable to send OTP email. Please try again later.')
 
     return redirect('verify_otp')
 @never_cache
@@ -407,18 +412,19 @@ def forgot_password(request):
             'otp': otp
         })
 
-        send_mail(
-            'Shoedrop Password Reset Request',
-            f'Hello,\n\nWe received a request to reset the password for your Shoedrop account.\n\nYour OTP for password reset is: {otp}\nThis OTP is valid for 1 minute. If you did not request a password reset, please ignore this email.\n\nBest regards,\nThe Shoedrop Team',
-            None,
-            [email],
-            fail_silently=False,
-            html_message=html_message
-        )
-
-        return redirect(
-            'forgot_password_verify_otp'
-        )
+        try:
+            send_mail(
+                'Shoedrop Password Reset Request',
+                f'Hello,\n\nWe received a request to reset the password for your Shoedrop account.\n\nYour OTP for password reset is: {otp}\nThis OTP is valid for 1 minute. If you did not request a password reset, please ignore this email.\n\nBest regards,\nThe Shoedrop Team',
+                None,
+                [email],
+                fail_silently=False,
+                html_message=html_message
+            )
+            return redirect('forgot_password_verify_otp')
+        except Exception as e:
+            messages.error(request, 'Unable to send password reset OTP email. Please try again later.')
+            return render(request, 'user/accounts/forgot_password.html')
 
     return render(
         request,
