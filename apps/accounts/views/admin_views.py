@@ -330,7 +330,12 @@ def admin_edit_profile(request):
         if profile_picture and hasattr(request.user, 'profile_image'):
             request.user.profile_image = profile_picture
 
-        request.user.save()
+        try:
+            request.user.save()
+        except Exception:
+            request.user.profile_image = None
+            request.user.save()
+            messages.warning(request, 'Profile updated, but profile image storage is unavailable.')
 
         return redirect('admin_profile')
 

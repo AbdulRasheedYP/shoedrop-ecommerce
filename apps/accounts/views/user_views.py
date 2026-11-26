@@ -841,26 +841,27 @@ def edit_profile(request):
         request.user.phone_number = phone_number
 
         if profile_image:
-
             if request.user.profile_image:
-                request.user.profile_image.delete(
-                    save=False
-                )
-
+                try:
+                    request.user.profile_image.delete(save=False)
+                except Exception:
+                    pass
             request.user.profile_image = profile_image
         try:
             validate_email(email)
-
         except ValidationError:
-
             messages.error(
                 request,
                 'Enter a valid email address'
             )
-
             return render(request, 'user/accounts/edit_profile.html', {'input_username': username, 'input_email': email, 'input_phone': phone_number})
 
-        request.user.save()
+        try:
+            request.user.save()
+        except Exception:
+            request.user.profile_image = None
+            request.user.save()
+            messages.warning(request, 'Profile details updated, but profile image storage is unavailable.')
         
         if email != old_email:
 
